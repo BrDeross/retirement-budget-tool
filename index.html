@@ -1,225 +1,411 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Medi-Solutions Retirement Budget Planner</title>
 
 <style>
-body{
-  margin:0;
-  font-family: Arial, Helvetica, sans-serif;
-  background:#f4f6fa;
-  color:#1a1f36;
-}
-.container{
-  max-width:1100px;
-  margin:30px auto;
-  background:white;
-  padding:30px;
-  border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
-}
-header{
-  text-align:center;
-  margin-bottom:30px;
-}
-.logo{
-  max-width:420px;
-  margin-bottom:15px;
-}
-h1{
-  margin:10px 0 0;
-  font-size:26px;
-  color:#1f2a75;
-}
-h2{
-  margin-top:40px;
-  color:#1f2a75;
-  border-bottom:2px solid #1f2a75;
-  padding-bottom:8px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th, td{
-  padding:10px;
-  border-bottom:1px solid #e0e4ef;
-}
-th{
-  text-align:left;
-  font-size:14px;
-  color:#6b7280;
-}
-input[type="text"], input[type="number"]{
-  width:100%;
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #cfd5e6;
-}
-.summary{
-  margin-top:30px;
-  padding:20px;
-  background:#eef2ff;
-  border-radius:8px;
-}
-.summary p{
-  font-size:18px;
-  margin:8px 0;
-}
-.positive{
-  color:green;
-}
-.negative{
-  color:red;
-}
-button{
-  margin-top:10px;
-  padding:8px 14px;
-  border:none;
-  background:#1f2a75;
-  color:white;
-  border-radius:6px;
-  cursor:pointer;
-}
-button:hover{
-  background:#15205a;
-}
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:20px;
-}
+  :root{
+    --blue:#1f2a75;
+    --bg:#f4f6fa;
+    --card:#ffffff;
+    --line:#e0e4ef;
+    --muted:#6b7280;
+    --good:#0a7a3b;
+    --bad:#c62828;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:#1a1f36;
+  }
+
+  .container{
+    max-width: 980px;
+    margin: 28px auto;
+    background: var(--card);
+    padding: 26px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  }
+
+  header{
+    text-align:center;
+    margin-bottom: 18px;
+  }
+
+  /* BIGGER LOGO */
+  .logo{
+    width: min(820px, 100%);
+    height: auto;
+    display:block;
+    margin: 0 auto 12px;
+  }
+
+  h1{
+    margin: 6px 0 0;
+    font-size: 24px;
+    color: var(--blue);
+  }
+
+  .subtitle{
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .section{
+    margin-top: 26px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+
+  .section-title{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin: 0 0 12px;
+  }
+
+  .section-title h2{
+    margin:0;
+    font-size: 18px;
+    color: var(--blue);
+  }
+
+  .section-title .tag{
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* UNIFORM STACKED LIST */
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .item{
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fbfcff;
+  }
+
+  .item label{
+    display:block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .item input[type="text"],
+  .item input[type="number"]{
+    width:100%;
+    padding: 10px 10px;
+    border-radius: 10px;
+    border: 1px solid #cfd5e6;
+    outline:none;
+    font-size: 14px;
+    background:white;
+  }
+
+  .item input[type="number"]{
+    margin-top: 10px;
+  }
+
+  .item-actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top: 10px;
+  }
+
+  .btn{
+    padding: 9px 12px;
+    border: none;
+    background: var(--blue);
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .btn:hover{ background:#15205a; }
+
+  .btn.secondary{
+    background: #e9ecf7;
+    color: var(--blue);
+    border: 1px solid #cfd5e6;
+  }
+  .btn.secondary:hover{ background:#dde3fb; }
+
+  .btn.danger{
+    background: #ffe9e9;
+    color: #8b1a1a;
+    border: 1px solid #ffcccc;
+  }
+  .btn.danger:hover{ background:#ffdcdc; }
+
+  .btn-row{
+    margin-top: 12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  /* SUMMARY */
+  .summary{
+    margin-top: 22px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #eef2ff;
+    border: 1px solid #d6dcff;
+  }
+
+  .summary .row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding: 6px 0;
+    font-size: 16px;
+  }
+
+  .summary .row strong{ color: var(--blue); }
+
+  .net{
+    font-weight: 800;
+  }
+  .net.positive{ color: var(--good); }
+  .net.negative{ color: var(--bad); }
+
+  .note{
+    margin-top: 14px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  .notes-box{
+    margin-top: 14px;
+  }
+  .notes-box label{
+    display:block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .notes-box input{
+    width:100%;
+    padding: 10px 10px;
+    border-radius: 10px;
+    border: 1px solid #cfd5e6;
+    font-size: 14px;
+  }
 </style>
 </head>
 
 <body>
+  <div class="container">
+    <header>
+      <!-- Uses your repo file: medi-solutions-logo.png -->
+      <img class="logo" src="medi-solutions-logo.png" alt="Medi-Solutions Insurance Agency, LLC Logo" />
+      <h1>Retirement Income & Expense Planner</h1>
+      <p class="subtitle">Money in / money out with auto-calculations • client-fillable</p>
+    </header>
 
-<div class="container">
+    <!-- MONEY IN -->
+    <div class="section">
+      <div class="section-title">
+        <h2>Money In (Monthly)</h2>
+        <div class="tag">Enter monthly amounts</div>
+      </div>
 
-<header>
+      <div id="incomeList" class="list"></div>
 
-<img class="logo" src="redi-logo.png" alt="Medi-Solutions Logo">
+      <div class="btn-row">
+        <button class="btn" type="button" id="addIncomeBtn">+ Add Income Line</button>
+      </div>
+    </div>
 
-<h1>Retirement Income & Expense Planner</h1>
-<p>Helping You Plan with Confidence</p>
+    <!-- MONEY OUT -->
+    <div class="section">
+      <div class="section-title">
+        <h2>Money Out (Monthly)</h2>
+        <div class="tag">Includes IRMAA, travel, unforeseen family expenses</div>
+      </div>
 
-</header>
+      <div id="expenseList" class="list"></div>
 
-<h2>Money In (Monthly)</h2>
-<table id="incomeTable">
-<thead>
-<tr>
-<th>Income Source</th>
-<th>Amount ($)</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-<button onclick="addRow('incomeTable')">Add Income Line</button>
+      <div class="btn-row">
+        <button class="btn" type="button" id="addExpenseBtn">+ Add Expense Line</button>
+      </div>
+    </div>
 
-<h2>Money Out (Monthly)</h2>
-<table id="expenseTable">
-<thead>
-<tr>
-<th>Expense Category</th>
-<th>Amount ($)</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-<button onclick="addRow('expenseTable')">Add Expense Line</button>
+    <!-- SUMMARY -->
+    <div class="summary">
+      <div class="row">
+        <span><strong>Total Income</strong></span>
+        <span>$<span id="totalIncome">0</span></span>
+      </div>
+      <div class="row">
+        <span><strong>Total Expenses</strong></span>
+        <span>$<span id="totalExpense">0</span></span>
+      </div>
+      <div class="row">
+        <span><strong>Net Monthly Cash Flow</strong></span>
+        <span class="net" id="netResult">$0</span>
+      </div>
+    </div>
 
-<div class="summary">
-<p><strong>Total Income:</strong> $<span id="totalIncome">0</span></p>
-<p><strong>Total Expenses:</strong> $<span id="totalExpense">0</span></p>
-<p><strong>Net Monthly Cash Flow:</strong> 
-<span id="netResult">$0</span>
-</p>
-</div>
+    <div class="notes-box">
+      <label for="clientNotes">Client notes (optional)</label>
+      <input id="clientNotes" type="text" placeholder="Example: 2 big trips/year, helping grandkids, roof in 3 years..." />
+    </div>
 
-<div class="note">
-Includes Medicare premiums, IRMAA adjustments, travel, long-term care, and unforeseen family expenses.  
-This tool is for planning purposes only and does not constitute tax or legal advice.
-</div>
+    <div class="note">
+      This tool is for planning purposes only and does not constitute tax or legal advice.
+      Medicare costs vary by plan and income. IRMAA depends on modified adjusted gross income.
+    </div>
 
-</div>
+    <div class="btn-row">
+      <button class="btn secondary" type="button" id="resetBtn">Reset to Defaults</button>
+      <button class="btn secondary" type="button" onclick="window.print()">Print / Save PDF</button>
+    </div>
+  </div>
 
 <script>
+  const fmt = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
 
-function addRow(tableId){
-  let table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
-  let row = table.insertRow();
+  function toNumber(v){
+    const n = Number(String(v ?? "").replace(/[^0-9.-]/g,""));
+    return Number.isFinite(n) ? n : 0;
+  }
 
-  let cell1 = row.insertCell(0);
-  let cell2 = row.insertCell(1);
+  function createStackedItem(container, labelValue, amountValue, onChange){
+    const wrap = document.createElement("div");
+    wrap.className = "item";
 
-  cell1.innerHTML = '<input type="text" placeholder="Enter item">';
-  cell2.innerHTML = '<input type="number" value="0" oninput="calculate()">';
-}
+    const lbl1 = document.createElement("label");
+    lbl1.textContent = "Item";
 
-function calculate(){
-  let incomeTotal = 0;
-  let expenseTotal = 0;
+    const name = document.createElement("input");
+    name.type = "text";
+    name.value = labelValue || "";
+    name.placeholder = "Enter item (example: Social Security, Pension, Travel...)";
+    name.addEventListener("input", onChange);
 
-  document.querySelectorAll('#incomeTable input[type="number"]').forEach(function(input){
-    incomeTotal += parseFloat(input.value) || 0;
+    const lbl2 = document.createElement("label");
+    lbl2.style.marginTop = "10px";
+    lbl2.textContent = "Amount ($ per month)";
+
+    const amt = document.createElement("input");
+    amt.type = "number";
+    amt.step = "1";
+    amt.min = "0";
+    amt.value = amountValue ?? 0;
+    amt.addEventListener("input", onChange);
+
+    const actions = document.createElement("div");
+    actions.className = "item-actions";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "btn danger";
+    removeBtn.textContent = "Remove";
+    removeBtn.addEventListener("click", () => {
+      wrap.remove();
+      onChange();
+    });
+
+    actions.appendChild(removeBtn);
+
+    wrap.appendChild(lbl1);
+    wrap.appendChild(name);
+    wrap.appendChild(lbl2);
+    wrap.appendChild(amt);
+    wrap.appendChild(actions);
+
+    container.appendChild(wrap);
+  }
+
+  function sumList(listId){
+    const list = document.getElementById(listId);
+    let total = 0;
+    list.querySelectorAll('.item input[type="number"]').forEach(inp => {
+      total += toNumber(inp.value);
+    });
+    return total;
+  }
+
+  function calculate(){
+    const incomeTotal = sumList("incomeList");
+    const expenseTotal = sumList("expenseList");
+    const net = incomeTotal - expenseTotal;
+
+    document.getElementById("totalIncome").textContent = fmt.format(incomeTotal);
+    document.getElementById("totalExpense").textContent = fmt.format(expenseTotal);
+
+    const netEl = document.getElementById("netResult");
+    netEl.textContent = "$" + fmt.format(net);
+    netEl.classList.remove("positive","negative");
+    netEl.classList.add(net >= 0 ? "positive" : "negative");
+  }
+
+  function seedDefaults(){
+    const incomeDefaults = [
+      "Social Security (You)",
+      "Social Security (Spouse)",
+      "Pension Income",
+      "Annuity Income",
+      "Investment Withdrawals (RMD/IRA)",
+      "Rental Income"
+    ];
+
+    const expenseDefaults = [
+      "Housing (Mortgage/Rent/HOA)",
+      "Utilities (Electric/Gas/Water/Internet)",
+      "Groceries & Household",
+      "Transportation (Fuel/Insurance/Maintenance)",
+      "Medicare Premiums (Part B/Plan/Medigap/MA)",
+      "IRMAA (Income Related Monthly Adjustment Amount)",
+      "Out-of-Pocket Medical & Prescriptions",
+      "Travel & Vacations",
+      "Long-Term Care Planning / Caregiving",
+      "Unforeseen Family Expenses (Cushion)"
+    ];
+
+    const incomeList = document.getElementById("incomeList");
+    const expenseList = document.getElementById("expenseList");
+    incomeList.innerHTML = "";
+    expenseList.innerHTML = "";
+
+    incomeDefaults.forEach(item => createStackedItem(incomeList, item, 0, calculate));
+    expenseDefaults.forEach(item => createStackedItem(expenseList, item, 0, calculate));
+
+    document.getElementById("clientNotes").value = "";
+    calculate();
+  }
+
+  // Buttons
+  document.getElementById("addIncomeBtn").addEventListener("click", () => {
+    createStackedItem(document.getElementById("incomeList"), "", 0, calculate);
+    calculate();
   });
 
-  document.querySelectorAll('#expenseTable input[type="number"]').forEach(function(input){
-    expenseTotal += parseFloat(input.value) || 0;
+  document.getElementById("addExpenseBtn").addEventListener("click", () => {
+    createStackedItem(document.getElementById("expenseList"), "", 0, calculate);
+    calculate();
   });
 
-  document.getElementById('totalIncome').innerText = incomeTotal.toLocaleString();
-  document.getElementById('totalExpense').innerText = expenseTotal.toLocaleString();
+  document.getElementById("resetBtn").addEventListener("click", seedDefaults);
 
-  let net = incomeTotal - expenseTotal;
-  let netDisplay = document.getElementById('netResult');
-  netDisplay.innerText = "$" + net.toLocaleString();
-  netDisplay.className = net >= 0 ? "positive" : "negative";
-}
-
-function seedDefaults(){
-  let incomeDefaults = [
-    "Social Security (You)",
-    "Social Security (Spouse)",
-    "Pension Income",
-    "Annuity Income",
-    "Investment Withdrawals",
-    "Rental Income"
-  ];
-
-  let expenseDefaults = [
-    "Housing",
-    "Utilities",
-    "Groceries",
-    "Transportation",
-    "Medicare Premiums",
-    "IRMAA (Income Related Adjustment)",
-    "Out-of-Pocket Medical",
-    "Travel",
-    "Long-Term Care",
-    "Unforeseen Family Expenses"
-  ];
-
-  incomeDefaults.forEach(item=>{
-    addRow("incomeTable");
-    let lastRow = document.querySelector('#incomeTable tbody tr:last-child');
-    lastRow.cells[0].querySelector('input').value = item;
-  });
-
-  expenseDefaults.forEach(item=>{
-    addRow("expenseTable");
-    let lastRow = document.querySelector('#expenseTable tbody tr:last-child');
-    lastRow.cells[0].querySelector('input').value = item;
-  });
-}
-
-seedDefaults();
-
+  // Init
+  seedDefaults();
 </script>
-
 </body>
 </html>
