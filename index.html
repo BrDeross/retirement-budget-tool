@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medi-Solutions Retirement Budget Planner</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, Helvetica, sans-serif;
+  background:#f4f6fa;
+  color:#1a1f36;
+}
+.container{
+  max-width:1100px;
+  margin:30px auto;
+  background:white;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+header{
+  text-align:center;
+  margin-bottom:30px;
+}
+.logo{
+  max-width:420px;
+  margin-bottom:15px;
+}
+h1{
+  margin:10px 0 0;
+  font-size:26px;
+  color:#1f2a75;
+}
+h2{
+  margin-top:40px;
+  color:#1f2a75;
+  border-bottom:2px solid #1f2a75;
+  padding-bottom:8px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th, td{
+  padding:10px;
+  border-bottom:1px solid #e0e4ef;
+}
+th{
+  text-align:left;
+  font-size:14px;
+  color:#6b7280;
+}
+input[type="text"], input[type="number"]{
+  width:100%;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #cfd5e6;
+}
+.summary{
+  margin-top:30px;
+  padding:20px;
+  background:#eef2ff;
+  border-radius:8px;
+}
+.summary p{
+  font-size:18px;
+  margin:8px 0;
+}
+.positive{
+  color:green;
+}
+.negative{
+  color:red;
+}
+button{
+  margin-top:10px;
+  padding:8px 14px;
+  border:none;
+  background:#1f2a75;
+  color:white;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:hover{
+  background:#15205a;
+}
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+
+<img class="logo" src="redi-logo.png" alt="Medi-Solutions Logo">
+
+<h1>Retirement Income & Expense Planner</h1>
+<p>Helping You Plan with Confidence</p>
+
+</header>
+
+<h2>Money In (Monthly)</h2>
+<table id="incomeTable">
+<thead>
+<tr>
+<th>Income Source</th>
+<th>Amount ($)</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<button onclick="addRow('incomeTable')">Add Income Line</button>
+
+<h2>Money Out (Monthly)</h2>
+<table id="expenseTable">
+<thead>
+<tr>
+<th>Expense Category</th>
+<th>Amount ($)</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<button onclick="addRow('expenseTable')">Add Expense Line</button>
+
+<div class="summary">
+<p><strong>Total Income:</strong> $<span id="totalIncome">0</span></p>
+<p><strong>Total Expenses:</strong> $<span id="totalExpense">0</span></p>
+<p><strong>Net Monthly Cash Flow:</strong> 
+<span id="netResult">$0</span>
+</p>
+</div>
+
+<div class="note">
+Includes Medicare premiums, IRMAA adjustments, travel, long-term care, and unforeseen family expenses.  
+This tool is for planning purposes only and does not constitute tax or legal advice.
+</div>
+
+</div>
+
+<script>
+
+function addRow(tableId){
+  let table = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+  let row = table.insertRow();
+
+  let cell1 = row.insertCell(0);
+  let cell2 = row.insertCell(1);
+
+  cell1.innerHTML = '<input type="text" placeholder="Enter item">';
+  cell2.innerHTML = '<input type="number" value="0" oninput="calculate()">';
+}
+
+function calculate(){
+  let incomeTotal = 0;
+  let expenseTotal = 0;
+
+  document.querySelectorAll('#incomeTable input[type="number"]').forEach(function(input){
+    incomeTotal += parseFloat(input.value) || 0;
+  });
+
+  document.querySelectorAll('#expenseTable input[type="number"]').forEach(function(input){
+    expenseTotal += parseFloat(input.value) || 0;
+  });
+
+  document.getElementById('totalIncome').innerText = incomeTotal.toLocaleString();
+  document.getElementById('totalExpense').innerText = expenseTotal.toLocaleString();
+
+  let net = incomeTotal - expenseTotal;
+  let netDisplay = document.getElementById('netResult');
+  netDisplay.innerText = "$" + net.toLocaleString();
+  netDisplay.className = net >= 0 ? "positive" : "negative";
+}
+
+function seedDefaults(){
+  let incomeDefaults = [
+    "Social Security (You)",
+    "Social Security (Spouse)",
+    "Pension Income",
+    "Annuity Income",
+    "Investment Withdrawals",
+    "Rental Income"
+  ];
+
+  let expenseDefaults = [
+    "Housing",
+    "Utilities",
+    "Groceries",
+    "Transportation",
+    "Medicare Premiums",
+    "IRMAA (Income Related Adjustment)",
+    "Out-of-Pocket Medical",
+    "Travel",
+    "Long-Term Care",
+    "Unforeseen Family Expenses"
+  ];
+
+  incomeDefaults.forEach(item=>{
+    addRow("incomeTable");
+    let lastRow = document.querySelector('#incomeTable tbody tr:last-child');
+    lastRow.cells[0].querySelector('input').value = item;
+  });
+
+  expenseDefaults.forEach(item=>{
+    addRow("expenseTable");
+    let lastRow = document.querySelector('#expenseTable tbody tr:last-child');
+    lastRow.cells[0].querySelector('input').value = item;
+  });
+}
+
+seedDefaults();
+
+</script>
+
+</body>
+</html>
