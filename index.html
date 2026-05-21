@@ -340,22 +340,22 @@
     const n = Number(String(v ?? "").replace(/[^0-9.-]/g,""));
     return Number.isFinite(n) ? n : 0;
   }
+function getMode(){ return document.getElementById("mode").value; }
+function periodLabel(){ return getMode() === "annual" ? "year" : "month"; }
 
-  function getMode(){ return document.getElementById("mode").value; }
-  function periodLabel(){ return getMode() === "annual" ? "year" : "month"; }
+function setTextIfExists(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value;
+}
 
-  function setTextIfExists(id, value){
-    const el = document.getElementById(id);
-    if(el) el.textContent = value;
-  }
+function setPeriodText(){
+  const modeText = getMode() === "annual" ? "Annual" : "Monthly";
 
-  function setPeriodText(){
-    const modeText = getMode() === "annual" ? "Annual" : "Monthly";
-    setTextIfExists("modeLabelIn", modeText);
-    setTextIfExists("modeLabelOut", modeText);
-    setTextIfExists("periodWord", periodLabel());
-    setTextIfExists("cushionPeriod", periodLabel());
-  }
+  setTextIfExists("modeLabelIn", modeText);
+  setTextIfExists("modeLabelOut", modeText);
+  setTextIfExists("periodWord", periodLabel());
+  setTextIfExists("cushionPeriod", periodLabel());
+}
 
   function makeItem(labelValue, amountValue, onChange){
     const wrap = document.createElement("div");
