@@ -373,9 +373,9 @@
 
     const amt = document.createElement("input");
     amt.className = "amt";
-    amt.type = "number";
+    amt.type = "text";
+    amt.inputMode = "decimal";
     amt.step = "1";
-    amt.min = "0";
     amt.value = amountValue ?? 0;
     amt.addEventListener("input", onChange);
 
@@ -396,7 +396,7 @@
   function sumList(listId){
     const list = document.getElementById(listId);
     let total = 0;
-    list.querySelectorAll('.item input[type="number"]').forEach(inp => total += toNumber(inp.value));
+    list.querySelectorAll('.item input[type="text"].amt, .item input[type="number"]').forEach(inp => total += toNumber(inp.value));
     return total;
   }
 
@@ -437,7 +437,7 @@
   function convertAllAmounts(factor){
     ["incomeList","expenseList"].forEach(listId => {
       document.getElementById(listId)
-        .querySelectorAll('.item input[type="number"]')
+        .querySelectorAll('.item input[type="text"].amt, .item input[type="number"]')
         .forEach(inp => inp.value = Math.round(toNumber(inp.value) * factor));
     });
   }
