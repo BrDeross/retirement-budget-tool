@@ -345,12 +345,22 @@
   function getMode(){ return document.getElementById("mode").value; }
   function periodLabel(){ return getMode() === "annual" ? "year" : "month"; }
 
+  function setTextIfExists(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = value;
+  }
+
+  function setValueIfExists(id, value){
+    const el = document.getElementById(id);
+    if(el) el.value = value;
+  }
+
   function setPeriodText(){
     const modeText = getMode() === "annual" ? "Annual" : "Monthly";
-    document.getElementById("modeLabelIn").textContent = modeText;
-    document.getElementById("modeLabelOut").textContent = modeText;
-    document.getElementById("periodWord").textContent = periodLabel();
-    document.getElementById("cushionPeriod").textContent = periodLabel();
+    setTextIfExists("modeLabelIn", modeText);
+    setTextIfExists("modeLabelOut", modeText);
+    setTextIfExists("periodWord", periodLabel());
+    setTextIfExists("cushionPeriod", periodLabel());
   }
 
   function scheduleCalculate(){
@@ -418,9 +428,12 @@
   }
 
   function syncPrintHeader(){
-    document.getElementById("printClientName").textContent = document.getElementById("clientName").value || "—";
-    document.getElementById("printDate").textContent = document.getElementById("planDate").value || "—";
-    document.getElementById("printMode").textContent = (getMode() === "annual" ? "Annual" : "Monthly");
+    const clientNameEl = document.getElementById("clientName");
+    const planDateEl = document.getElementById("planDate");
+
+    setTextIfExists("printClientName", clientNameEl ? (clientNameEl.value || "—") : "—");
+    setTextIfExists("printDate", planDateEl ? (planDateEl.value || "—") : "—");
+    setTextIfExists("printMode", (getMode() === "annual" ? "Annual" : "Monthly"));
   }
 
   function calculate(){
