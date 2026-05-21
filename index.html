@@ -337,8 +337,7 @@
   const fmt = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
 
   function toNumber(v){
-    const cleaned = String(v ?? "").replace(/[^0-9.-]/g, "");
-    const n = Number(cleaned);
+    const n = Number(String(v ?? "").replace(/[^0-9.-]/g,""));
     return Number.isFinite(n) ? n : 0;
   }
 
@@ -350,22 +349,12 @@
     if(el) el.textContent = value;
   }
 
-  function setValueIfExists(id, value){
-    const el = document.getElementById(id);
-    if(el) el.value = value;
-  }
-
   function setPeriodText(){
     const modeText = getMode() === "annual" ? "Annual" : "Monthly";
     setTextIfExists("modeLabelIn", modeText);
     setTextIfExists("modeLabelOut", modeText);
     setTextIfExists("periodWord", periodLabel());
     setTextIfExists("cushionPeriod", periodLabel());
-  }
-
-  function scheduleCalculate(){
-    window.clearTimeout(window.__calcTimer);
-    window.__calcTimer = window.setTimeout(calculate, 0);
   }
 
   function makeItem(labelValue, amountValue, onChange){
@@ -381,7 +370,7 @@
     name.type = "text";
     name.value = labelValue || "";
     name.placeholder = "Enter item (example: Social Security, Pension, Travel...)";
-    name.addEventListener("input", onChange || scheduleCalculate);
+    name.addEventListener("input", onChange);
 
     const amtLabel = document.createElement("label");
     amtLabel.className = "amt-label";
@@ -391,11 +380,8 @@
     amt.className = "amt";
     amt.type = "text";
     amt.inputMode = "decimal";
-    amt.autocomplete = "off";
     amt.value = amountValue ?? 0;
-    amt.addEventListener("input", onChange || scheduleCalculate);
-    amt.addEventListener("change", onChange || scheduleCalculate);
-    amt.addEventListener("keyup", onChange || scheduleCalculate);
+    amt.addEventListener("input", onChange);
 
     wrap.appendChild(t);
     wrap.appendChild(name);
@@ -412,28 +398,27 @@
   }
 
   function sumList(listId){
+    const list = document.getElementById(listId);
     let total = 0;
-    document.querySelectorAll(`#${listId} input.amt`).forEach(inp => {
-      total += toNumber(inp.value);
-    });
+    if(!list) return total;
+    list.querySelectorAll('.item .amt').forEach(inp => total += toNumber(inp.value));
     return total;
   }
 
   function calcCushion(baseExpenses){
-    const pct = Math.max(0, Math.min(50, toNumber(document.getElementById("cushionPct").value)));
-    document.getElementById("cushionLabelPct").textContent = pct;
+    const cushionPctEl = document.getElementById("cushionPct");
+    const pct = Math.max(0, Math.min(50, toNumber(cushionPctEl ? cushionPctEl.value : 0)));
+    setTextIfExists("cushionLabelPct", pct);
     const cushion = baseExpenses * (pct / 100);
-    document.getElementById("cushionAmount").value = Math.round(cushion);
+    const cushionAmountEl = document.getElementById("cushionAmount");
+    if(cushionAmountEl) cushionAmountEl.value = Math.round(cushion);
     return cushion;
   }
 
   function syncPrintHeader(){
-    const clientNameEl = document.getElementById("clientName");
-    const planDateEl = document.getElementById("planDate");
-
-    setTextIfExists("printClientName", clientNameEl ? (clientNameEl.value || "—") : "—");
-    setTextIfExists("printDate", planDateEl ? (planDateEl.value || "—") : "—");
-    setTextIfExists("printMode", (getMode() === "annual" ? "Annual" : "Monthly"));
+    setTextIfExists("printClientName", document.getElementById("clientName")?.value || "—");
+    setTextIfExists("printDate", document.getElementById("planDate")?.value || "—");
+    setTextIfExists("printMode", getMode() === "annual" ? "Annual" : "Monthly");
   }
 
   function calculate(){
@@ -445,21 +430,24 @@
     const expenseTotal = expenseBase + cushion;
     const net = incomeTotal - expenseTotal;
 
-    document.getElementById("totalIncome").textContent = fmt.format(incomeTotal);
-    document.getElementById("totalExpense").textContent = fmt.format(expenseTotal);
+    setTextIfExists("totalIncome", fmt.format(incomeTotal));
+    setTextIfExists("totalExpense", fmt.format(expenseTotal));
 
     const netEl = document.getElementById("netResult");
-    netEl.textContent = "$" + fmt.format(net);
-    netEl.classList.remove("positive", "negative");
-    netEl.classList.add(net >= 0 ? "positive" : "negative");
+    if(netEl){
+      netEl.textContent = "$" + fmt.format(net);
+      netEl.classList.remove("positive","negative");
+      netEl.classList.add(net >= 0 ? "positive" : "negative");
+    }
 
     syncPrintHeader();
   }
 
   function convertAllAmounts(factor){
-    ["incomeList", "expenseList"].forEach(listId => {
-      document.getElementById(listId)
-        .querySelectorAll('input.amt')
+    ["incomeList","expenseList"].forEach(listId => {
+      const list = document.getElementById(listId);
+      if(!list) return;
+      list.querySelectorAll('.item .amt')
         .forEach(inp => inp.value = Math.round(toNumber(inp.value) * factor));
     });
   }
@@ -507,8 +495,8 @@
     incomeList.innerHTML = "";
     expenseList.innerHTML = "";
 
-    incomeDefaults.forEach(item => incomeList.appendChild(makeItem(item, 0, scheduleCalculate)));
-    expenseDefaults.forEach(item => expenseList.appendChild(makeItem(item, 0, scheduleCalculate)));
+    incomeDefaults.forEach(item => incomeList.appendChild(makeItem(item, 0, calculate)));
+    expenseDefaults.forEach(item => expenseList.appendChild(makeItem(item, 0, calculate)));
 
     document.getElementById("cushionPct").value = 0;
     document.getElementById("clientName").value = "";
@@ -527,38 +515,26 @@
     calculate();
   }
 
-  document.addEventListener("input", function(e){
-    if(e.target.matches('input.amt, #cushionPct, #clientName, #planDate')){
-      scheduleCalculate();
-    }
-  });
-
-  document.addEventListener("change", function(e){
-    if(e.target.matches('input.amt, #cushionPct, #clientName, #planDate')){
-      scheduleCalculate();
-    }
-  });
-
-  document.addEventListener("paste", function(e){
-    if(e.target.matches('input.amt, #cushionPct')){
-      scheduleCalculate();
-    }
-  });
-
+  // Wire buttons
   document.getElementById("addIncomeBtn").addEventListener("click", () => {
-    document.getElementById("incomeList").appendChild(makeItem("", 0, scheduleCalculate));
+    document.getElementById("incomeList").appendChild(makeItem("", 0, calculate));
     calculate();
   });
 
   document.getElementById("addExpenseBtn").addEventListener("click", () => {
-    document.getElementById("expenseList").appendChild(makeItem("", 0, scheduleCalculate));
+    document.getElementById("expenseList").appendChild(makeItem("", 0, calculate));
     calculate();
   });
 
   document.getElementById("mode").addEventListener("change", onModeChange);
+  document.getElementById("cushionPct").addEventListener("input", calculate);
+  document.getElementById("clientName").addEventListener("input", calculate);
+  document.getElementById("planDate").addEventListener("change", calculate);
+
   document.getElementById("resetBtn").addEventListener("click", seedDefaults);
   document.getElementById("printBtn").addEventListener("click", () => window.print());
 
+  // Init
   seedDefaults();
 </script>
 </body>
